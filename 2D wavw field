@@ -1,0 +1,31 @@
+# wave2d.py
+import numpy as np
+import matplotlib.pyplot as plt
+
+# grid
+N = 200
+x = np.linspace(-5,5,N)
+y = np.linspace(-5,5,N)
+X, Y = np.meshgrid(x, y)
+
+# wave sources
+def wave_source(x0, y0, k=2*np.pi, phase=0):
+    r = np.sqrt((X-x0)**2 + (Y-y0)**2)
+    return np.exp(1j * (k*r + phase)) / (r + 1e-6)
+
+# two sources
+w1 = wave_source(-1, 0, phase=0)
+w2 = wave_source(1, 0, phase=np.pi/2)
+
+# interference
+W = w1 + w2
+I = np.abs(W)**2
+
+# plot
+plt.figure()
+plt.imshow(I, extent=[-5,5,-5,5])
+plt.colorbar(label="Intensity")
+plt.title("2D Wave Interference Field")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.show()
