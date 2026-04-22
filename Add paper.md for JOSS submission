@@ -1,0 +1,129 @@
+---
+title: "WavePhysAI: A Modular Framework for Wave-Based Physical Computing and AI Simulation"
+tags:
+  - wave computing
+  - physical computing
+  - AI simulation
+  - interference
+  - physics-based computation
+authors:
+  - name: Jincheol
+    affiliation: 1
+affiliations:
+  - name: Independent Researcher
+    index: 1
+date: 2026
+bibliography: references.bib
+---
+
+# Summary
+
+WavePhysAI is an open-source Python framework designed to simulate and explore wave-based physical computing systems. Unlike conventional digital computing architectures, WavePhysAI leverages physical wave phenomena such as interference, phase modulation, and amplitude superposition to perform computation.
+
+The framework provides a modular architecture that allows researchers to construct, simulate, and analyze wave-driven computational models. It enables experimentation with alternative computing paradigms that may offer advantages in parallelism, energy efficiency, and novel AI-like behavior emerging from physical dynamics.
+
+# Statement of Need
+
+Modern artificial intelligence systems rely heavily on digital computation implemented on GPUs and specialized accelerators. While highly effective, these systems are energy-intensive and constrained by sequential logic abstractions.
+
+Wave-based physical computing presents a fundamentally different paradigm. By encoding information in wave properties such as phase, frequency, and polarization, computation can be performed through natural physical processes like interference and resonance.
+
+Despite increasing interest in physical and analog computing, there is a lack of accessible and extensible software tools that allow researchers to prototype and evaluate wave-based computational systems.
+
+WavePhysAI addresses this gap by providing:
+
+- A simulation environment for wave-based computation
+- Modular components for building physical computing architectures
+- Tools for exploring AI-like behavior emerging from wave interactions
+
+# Design and Architecture
+
+WavePhysAI is structured as a modular Python package with the following core components:
+
+## Core Engine
+
+The core module defines fundamental wave representations and propagation mechanics. It models wave behavior including:
+
+- Phase evolution
+- Amplitude modulation
+- Superposition and interference
+
+## Simulation Module
+
+The simulation layer provides tools for constructing wave environments and executing time-evolution experiments. Users can define boundary conditions, input signals, and interaction rules.
+
+## Control Module
+
+The control module enables manipulation of wave parameters such as:
+
+- Phase tuning
+- Polarization control
+- Input encoding strategies
+
+This allows implementation of logic-like behavior using physical wave transformations.
+
+## AI-like Computation Layer
+
+WavePhysAI supports experimental AI-like computation by mapping:
+
+- Inputs → wave configurations
+- Processing → interference patterns
+- Outputs → measurable wave states
+
+This enables exploration of non-digital, physics-driven learning and inference mechanisms.
+
+# Key Features
+
+- Wave interference-based computation
+- Modular and extensible architecture
+- Simulation of phase and amplitude dynamics
+- Support for experimental AI paradigms
+- Lightweight and accessible Python implementation
+
+# Example Use Cases
+
+WavePhysAI can be used in a variety of research contexts:
+
+- Physical computing and unconventional computation
+- Analog and wave-based AI systems
+- Optical or acoustic computing simulations
+- Energy-efficient computation research
+- Educational demonstrations of wave physics and computation
+
+# Implementation
+
+WavePhysAI is implemented in Python and designed for ease of use and extensibility. The package includes:
+
+- Modular source code structure
+- Dependency management via `requirements.txt`
+- Standard Python packaging via `setup.py`
+
+The framework is compatible with standard scientific Python environments.
+
+# Performance Considerations
+
+While WavePhysAI is primarily a simulation framework, it is designed to be computationally efficient and scalable. Future work may include:
+
+- GPU acceleration
+- Integration with physical hardware systems
+- Real-time wave computation interfaces
+
+# Limitations and Future Work
+
+Current limitations include:
+
+- Lack of direct hardware integration
+- Limited optimization for large-scale simulations
+
+Future development directions:
+
+- Hybrid digital-physical computing models
+- Integration with optical or acoustic hardware
+- Learning algorithms based on wave dynamics
+- Expansion into quantum-inspired computing frameworks
+
+# Conclusion
+
+WavePhysAI provides a novel and flexible platform for exploring wave-based physical computing and AI simulation. By bridging physics and computation, it opens new directions for research into energy-efficient, parallel, and unconventional computing paradigms.
+
+# References
