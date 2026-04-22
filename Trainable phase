@@ -1,0 +1,58 @@
+# trainable_wave.py
+import numpy as np
+
+np.random.seed(0)
+
+# data
+X = np.linspace(-2, 2, 200)
+y = (X > 0).astype(int)
+
+# parameters (trainable)
+phi0 = np.random.rand()
+phi1 = np.random.rand()
+
+lr = 0.1
+
+def forward(x, phi0, phi1):
+    phase = np.pi * x
+    w = np.exp(1j * phase)
+
+    ref0 = np.exp(1j * phi0)
+    ref1 = np.exp(1j * phi1)
+
+    I0 = np.abs(w + ref0)**2
+    I1 = np.abs(w + ref1)**2
+
+    return I0, I1
+
+# training loop
+for epoch in range(200):
+    loss = 0
+
+    for i in range(len(X)):
+        I0, I1 = forward(X[i], phi0, phi1)
+
+        pred = 0 if I0 > I1 else 1
+
+        # simple loss
+        target = y[i]
+        error = (pred - target)
+
+        # pseudo-gradient update
+        phi0 -= lr * error * np.sin(phi0)
+        phi1 += lr * error * np.cos(phi1)
+
+        loss += error**2
+
+    if epoch % 50 == 0:
+        print(f"Epoch {epoch}, Loss {loss}")
+
+# final accuracy
+correct = 0
+for i in range(len(X)):
+    I0, I1 = forward(X[i], phi0, phi1)
+    pred = 0 if I0 > I1 else 1
+    if pred == y[i]:
+        correct += 1
+
+print("Final Accuracy:", correct / len(X))
