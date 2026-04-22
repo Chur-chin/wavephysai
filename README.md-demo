@@ -1,0 +1,19 @@
+# WavePhysAI Demo
+
+Real-time visualization of wave-based control using a simplified FDTD-inspired model.
+
+## Features
+- Wave simulation (mmWave + IR concept)
+- JSON API output
+- React visualization
+- Real-time animation
+
+## Run
+
+### Backend
+python export_json.py
+python api_server.py
+
+### Frontend
+npm install
+npm start
