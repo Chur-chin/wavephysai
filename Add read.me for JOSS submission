@@ -1,0 +1,14 @@
+# WavePhysAI
+
+## Installation
+pip install -r requirements.txt
+
+## Usage
+python example.py
+
+## Description
+Wave-based physical computing simulation framework.
+
+## Features
+- Wave simulation
+- AI-inspired computation
