@@ -1,0 +1,3 @@
+cd backend
+python export_json.py
+python api_server.py
