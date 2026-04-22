@@ -1,3 +1,4 @@
 ## Contribution
 
 This work demonstrates a lightweight framework for coupling wave-based simulation, JSON-based data streaming, and real-time visualization for interactive applications.
+![demo](demo.gif)
