@@ -1,0 +1,57 @@
+# xor_wave.py
+import numpy as np
+import matplotlib.pyplot as plt
+
+# XOR dataset
+X = np.array([
+    [0,0],
+    [0,1],
+    [1,0],
+    [1,1]
+])
+y = np.array([0,1,1,0])
+
+# encoding
+def encode(x):
+    phase = np.pi * x[:,0]          # first input → phase
+    amplitude = 1 + x[:,1]          # second input → amplitude
+    return amplitude, phase
+
+def wave(a, p):
+    return a * np.exp(1j * p)
+
+def interference(x):
+    a, p = encode(x.reshape(1,-1))
+    w = wave(a, p)
+
+    ref0 = np.exp(1j * 0)
+    ref1 = np.exp(1j * np.pi/2)
+
+    I0 = np.abs(w + ref0)**2
+    I1 = np.abs(w + ref1)**2
+
+    return I0, I1
+
+# prediction
+pred = []
+for x in X:
+    I0, I1 = interference(x)
+    pred.append(0 if I0 > I1 else 1)
+
+pred = np.array(pred)
+
+print("XOR Prediction:", pred)
+print("Accuracy:", np.mean(pred == y))
+
+# plot
+plt.figure()
+for i, x in enumerate(X):
+    I0, I1 = interference(x)
+    plt.scatter(i, I0, label="I0" if i==0 else "", alpha=0.7)
+    plt.scatter(i, I1, label="I1" if i==0 else "", alpha=0.7)
+
+plt.xticks(range(4), ["00","01","10","11"])
+plt.title("XOR via Wave Interference")
+plt.legend()
+plt.grid()
+plt.show()
