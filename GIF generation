@@ -1,0 +1,41 @@
+import imageio
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ============================
+# 예: frames 불러오기
+# ============================
+# 방법 1: output.json에서 읽기
+import json
+
+with open("output.json") as f:
+    data = json.load(f)
+
+frames = data["frames"]
+
+
+# ============================
+# GIF 생성
+# ============================
+images = []
+
+for i, frame in enumerate(frames):
+    frame = np.array(frame)
+
+    plt.figure(figsize=(4,4))
+    plt.imshow(frame, cmap="RdBu")
+    plt.title(f"Step {i}")
+    plt.axis("off")
+
+    # 이미지 저장 (메모리)
+    plt.savefig("temp.png", bbox_inches='tight', pad_inches=0)
+    plt.close()
+
+    images.append(imageio.imread("temp.png"))
+
+# ============================
+# GIF 저장
+# ============================
+imageio.mimsave("demo.gif", images, duration=0.05)
+
+print("✅ demo.gif 생성 완료")
