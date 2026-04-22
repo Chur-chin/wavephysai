@@ -1,0 +1,77 @@
+# wave_vs_nn.py
+import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(0)
+
+# 데이터
+X = np.linspace(-2, 2, 300)
+y = (X > 0).astype(int)
+
+# -----------------------
+# Wave model
+# -----------------------
+def wave_model(x):
+    phase = np.pi * x
+    w = np.exp(1j * phase)
+
+    ref0 = np.exp(1j * 0)
+    ref1 = np.exp(1j * np.pi/2)
+
+    I0 = np.abs(w + ref0)**2
+    I1 = np.abs(w + ref1)**2
+
+    return 0 if I0 > I1 else 1
+
+wave_preds = np.array([wave_model(x) for x in X])
+wave_acc = np.mean(wave_preds == y)
+
+# -----------------------
+# Simple Neural Network
+# -----------------------
+# 1-layer NN (manual)
+w1 = np.random.randn()
+b1 = np.random.randn()
+
+lr = 0.1
+
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+# training
+for epoch in range(200):
+    for i in range(len(X)):
+        z = w1 * X[i] + b1
+        pred = sigmoid(z)
+        
+        error = pred - y[i]
+        
+        # gradient
+        dw = error * X[i]
+        db = error
+        
+        w1 -= lr * dw
+        b1 -= lr * db
+
+# NN prediction
+nn_preds = np.array([1 if sigmoid(w1*x + b1) > 0.5 else 0 for x in X])
+nn_acc = np.mean(nn_preds == y)
+
+# -----------------------
+# 결과 출력
+# -----------------------
+print("Wave Accuracy:", wave_acc)
+print("NN Accuracy:", nn_acc)
+
+# -----------------------
+# 시각화
+# -----------------------
+plt.figure()
+plt.plot(X, y, label="True", linestyle="--")
+plt.plot(X, wave_preds, label="Wave")
+plt.plot(X, nn_preds, label="Neural Net")
+
+plt.title("Wave vs Neural Network Classification")
+plt.legend()
+plt.grid()
+plt.show()
