@@ -1,0 +1,47 @@
+# phase_noise_experiment.py
+import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(42)
+
+# 데이터
+X = np.linspace(-2, 2, 300)
+y = (X > 0).astype(int)
+
+def forward(x, noise_std=0.0):
+    phase = np.pi * x
+    
+    # noise 추가
+    phase += np.random.normal(0, noise_std)
+    
+    w = np.exp(1j * phase)
+
+    ref0 = np.exp(1j * 0)
+    ref1 = np.exp(1j * np.pi/2)
+
+    I0 = np.abs(w + ref0)**2
+    I1 = np.abs(w + ref1)**2
+
+    return 0 if I0 > I1 else 1
+
+# noise sweep
+noise_levels = np.linspace(0, 1.0, 20)
+accuracies = []
+
+for noise in noise_levels:
+    preds = []
+    for x in X:
+        preds.append(forward(x, noise))
+    
+    preds = np.array(preds)
+    acc = np.mean(preds == y)
+    accuracies.append(acc)
+
+# plot
+plt.figure()
+plt.plot(noise_levels, accuracies, marker='o')
+plt.xlabel("Phase Noise (std)")
+plt.ylabel("Accuracy")
+plt.title("Accuracy vs Phase Noise (Wave Computing)")
+plt.grid()
+plt.show()
