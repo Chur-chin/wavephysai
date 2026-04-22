@@ -1,6 +1,6 @@
 # WavePhysAI Demo
 
-Real-time visualization of wave-based control using a simplified FDTD-inspired model.
+A simulation framework for wave-based control using a simplified FDTD-inspired model.
 
 ## Features
 - Wave simulation (mmWave + IR concept)
@@ -8,12 +8,7 @@ Real-time visualization of wave-based control using a simplified FDTD-inspired m
 - React visualization
 - Real-time animation
 
-## Run
+## Installation
 
-### Backend
-python export_json.py
-python api_server.py
-
-### Frontend
-npm install
-npm start
+```bash
+pip install -r requirements.txt
