@@ -1,0 +1,467 @@
+%% ============================================================
+%% WavePhysAI — Complete Equation Reference
+%% Physical Wave Neuromorphic Computing for Humanoid Control
+%% Author: Chur Chin, M.D./Ph.D.
+%% Dong Eui Medical Center, Busan, Republic of Korea
+%% ============================================================
+
+\documentclass[12pt, a4paper]{article}
+
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{bm}           % bold math
+\usepackage{physics}      % \abs, \norm, \dv, etc.
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{titlesec}
+
+\geometry{margin=2.5cm}
+
+\definecolor{navy}{HTML}{0D1829}
+\definecolor{cyan}{HTML}{00B4CC}
+
+\titleformat{\section}{\large\bfseries\color{navy}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries\color{navy}}{\thesubsection.}{0.5em}{}
+
+\newcommand{\eqref}[1]{(\ref{#1})}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\VM}{\mathrm{VM}}
+\newcommand{\RMSE}{\mathrm{RMSE}}
+\newcommand{\SNR}{\mathrm{SNR}}
+\newcommand{\DOS}{\mathrm{DOS}}
+\newcommand{\hf}{\hbar v_F}
+
+\title{\textbf{WavePhysAI: Equation Reference}\\
+       \large Physical Wave Neuromorphic Computing\\
+       for Full-Body Distributed Humanoid Control}
+\author{Chur Chin, M.D./Ph.D.\\
+        \small Dong Eui Medical Center, Busan, Republic of Korea}
+\date{April 2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+%% ============================================================
+\section{Wave Interference Computing}
+%% ============================================================
+
+\subsection{Output Intensity (XOR Gate)}
+
+The output intensity at the detector from two wave sources:
+\begin{equation}\label{eq:interference}
+  I_{\rm out} = \left| A\,e^{i\phi_1} + B\,e^{i\phi_2} \right|^2
+  = A^2 + B^2 + 2AB\cos(\phi_1 - \phi_2)
+\end{equation}
+
+\textbf{XOR truth table via phase control:}
+\begin{center}
+\begin{tabular}{cccccc}
+\toprule
+$A$ & $B$ & $\phi_1$ & $\phi_2$ & Interference & Output \\
+\midrule
+0 & 0 & -- & -- & none & 0 \\
+1 & 0 & 0 & -- & single & 1 \\
+0 & 1 & -- & 0 & single & 1 \\
+1 & 1 & 0 & $\pi$ & destructive & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Key identity:} $A = B = 1,\ \phi_2 = \pi \Rightarrow I_{\rm out} = 0$ (complete cancellation).
+
+\subsection{EPSP / IPSP Mapping}
+
+\begin{align}
+  \text{Constructive}\ (\Delta\phi = 0):&\quad
+    I_{\rm out} = (A+B)^2 \quad \Rightarrow \text{EPSP (excitatory)} \label{eq:epsp}\\
+  \text{Destructive}\ (\Delta\phi = \pi):&\quad
+    I_{\rm out} = (A-B)^2 \approx 0 \quad \Rightarrow \text{IPSP (inhibitory)} \label{eq:ipsp}
+\end{align}
+
+\subsection{Wave-to-Motor Mapping}
+
+Joint angle $\theta_i$ from wave energy at node $x_i$:
+\begin{equation}\label{eq:joint_angle}
+  \theta_i(t) = k \int_0^t p^2(x_i,\, \tau)\, d\tau
+\end{equation}
+where $p(x,t)$ is the wave pressure field, $k$ is a gain constant (rad/J).
+
+%% ============================================================
+\section{FDTD Wave Engine}
+%% ============================================================
+
+\subsection{2D Wave Equation}
+
+\begin{equation}\label{eq:wave_pde}
+  \frac{\partial^2 u}{\partial t^2}
+  = c^2 \nabla^2 u
+  - \alpha \frac{\partial u}{\partial t}
+  + f(\mathbf{r},t)
+\end{equation}
+
+Variables: $u(\mathbf{r},t)$ wave displacement; $c$ phase velocity; $\alpha$ damping; $f$ source.
+
+\subsection{FDTD Discretisation (Leap-Frog)}
+
+\begin{equation}\label{eq:fdtd}
+  u^{n+1}_{i,j}
+  = \underbrace{(2 - \alpha\Delta t)}_{\text{damped coeff.}} u^n_{i,j}
+    - (1 - \alpha\Delta t)\, u^{n-1}_{i,j}
+    + \underbrace{\left(\frac{c\Delta t}{\Delta x}\right)^2}_{\lambda^2}
+      \mathcal{L}[u^n]_{i,j}
+    + \Delta t^2\, f^n_{i,j}
+\end{equation}
+
+where $\mathcal{L}[u]_{i,j} = u_{i+1,j} + u_{i-1,j} + u_{i,j+1} + u_{i,j-1} - 4u_{i,j}$.
+
+\subsection{CFL Stability Condition}
+
+\begin{equation}\label{eq:cfl}
+  \lambda = \frac{c\,\Delta t}{\Delta x} \leq \frac{1}{\sqrt{d}}
+  \qquad (d = \text{spatial dimension})
+\end{equation}
+
+Recommended: $\lambda = 0.45$ (2D) for stability margin.
+
+\subsection{Serpentine Waveguide Bending Loss}
+
+\begin{equation}\label{eq:bending_loss}
+  \alpha_B \approx
+  \frac{2n_{\rm core}\,k\,(\theta_c^2 - \theta_b^2)\,
+        \exp\!\left(-\tfrac{2}{3}n_{\rm core}\,k\,R\,(\theta_c^2-\theta_b^2)^{3/2}/a\right)}
+       {R^{3/2}}
+\end{equation}
+
+\textbf{Design rule:} $R \geq 5.5$~mm $\Rightarrow$ loss $< 0.45$~dB/bend (validated).
+
+\subsection{Fabry–Pérot Cavity Resonance}
+
+\begin{equation}\label{eq:fp_cavity}
+  L = \frac{m\,\lambda_0}{2\,n_{\rm eff}}, \quad m = 1, 2, 3, \ldots
+\end{equation}
+
+Fundamental optical mode: $\lambda_0 = 1550$~nm, $n_{\rm eff} = 2.0$ $\Rightarrow$ $L \approx 387$~nm.
+
+%% ============================================================
+\section{Neural Field Model (Spinal Cord)}
+%% ============================================================
+
+\subsection{Amari Neural Field Equation}
+
+\begin{equation}\label{eq:amari}
+  \tau\,\frac{\partial u(x,t)}{\partial t}
+  = -u(x,t)
+    + \int_{-\infty}^{+\infty} w(x - x')\,\sigma(u(x',t))\,dx'
+    + I_{\rm ext}(x,t)
+\end{equation}
+
+\begin{itemize}
+  \item $u(x,t)$: spatiotemporal neural activation (spinal cord position $x$)
+  \item $w(x)$: lateral connectivity kernel (Mexican hat)
+  \item $\sigma(u) = [1 + e^{-\beta(u-\theta)}]^{-1}$: sigmoid activation
+  \item $I_{\rm ext}$: external sensory input
+\end{itemize}
+
+\subsection{Mexican Hat Connectivity Kernel}
+
+\begin{equation}\label{eq:mexican_hat}
+  w(x) = w_e \exp\!\left(\frac{-x^2}{2\sigma_e^2}\right)
+         - w_i \exp\!\left(\frac{-x^2}{2\sigma_i^2}\right),
+  \quad \sigma_e < \sigma_i
+\end{equation}
+
+Short-range excitation ($\sigma_e$) + long-range inhibition ($\sigma_i$) → traveling waves.
+
+%% ============================================================
+\section{Central Pattern Generator (CPG)}
+%% ============================================================
+
+\subsection{Kuramoto Oscillator Network}
+
+\begin{equation}\label{eq:kuramoto}
+  \frac{d\phi_i}{dt}
+  = \omega_i
+    + \sum_{j=1}^{N} \kappa_{ij}\,\sin(\phi_j - \phi_i - \psi_{ij})
+\end{equation}
+
+\begin{itemize}
+  \item $\phi_i$: phase of oscillator $i$ (joint: LH, RH, LK, RK, \ldots)
+  \item $\omega_i$: natural frequency (rad/s); $\omega \approx 2\pi \times 2$~Hz (walking)
+  \item $\kappa_{ij}$: coupling strength; $\psi_{ij}$: desired phase offset
+  \item Anti-phase: $\psi_{LH,RH} = \psi_{RH,LH} = \pi$ (contralateral limbs)
+\end{itemize}
+
+\subsection{Kuramoto Order Parameter}
+
+\begin{equation}\label{eq:order_param}
+  R = \left|\frac{1}{N}\sum_{j=1}^{N} e^{i\phi_j}\right| \in [0,1]
+\end{equation}
+
+$R = 1$: full synchrony; $R \approx 0$: incoherent oscillations.
+
+\subsection{Phase Response Curve (Haptic Reset)}
+
+\begin{equation}\label{eq:prc}
+  \dot{\phi}_i = \omega_i + Z(\phi_i)\,F(t),
+  \quad Z(\phi) \approx \sin\phi
+\end{equation}
+
+Haptic burst $F(t)$ causes instantaneous phase reset → reflex grasping.
+
+%% ============================================================
+\section{Ganglion Layer}
+%% ============================================================
+
+\subsection{Ganglion Gate Equation}
+
+\begin{equation}\label{eq:ganglion}
+  O_i = \sigma(I_i - \theta_i)
+  = \frac{1}{1 + e^{-\beta(I_i - \theta_i)}}
+\end{equation}
+
+Biological interpretation: ganglion node = cavity node; $I_i$ = wave energy;
+$\theta_i$ = threshold; $O_i$ = post-ganglionic output.
+
+\subsection{Autonomic Drift Layer}
+
+\begin{equation}\label{eq:autonomic}
+  \phi(t) = \phi_0 + \omega t + \Delta\phi_{\rm auto}(t)
+\end{equation}
+
+Slow phase modulation maintains baseline muscle tone independently of reflexes.
+
+\subsection{Reflex Loop (Without Brain)}
+
+\begin{equation}\label{eq:reflex}
+  u_{\rm spinal}[\mathbf{x}_0] \mathrel{+}= \beta \cdot O_{\rm ganglion}(t)
+\end{equation}
+
+Output feeds back into the spinal wave field → reflex arcs without central processing.
+
+%% ============================================================
+\section{Wave Parameter Mapping (GR00T Interface)}
+%% ============================================================
+
+\subsection{Frequency Mapping}
+
+\begin{equation}\label{eq:freq_map}
+  f_n(t) = f_0 + k_f\,\|\mathbf{v}_{\rm ref}(t)\|
+\end{equation}
+
+Recommended: $f_0 = 1.0$~Hz, $k_f = 0.4$~Hz$\cdot$s/m.
+
+\subsection{Amplitude Mapping}
+
+\begin{equation}\label{eq:amp_map}
+  A_n(t) = \operatorname{clip}\!\bigl(A_{\min},\;
+           A_0 + k_A\,\tau_n(t),\; A_{\max}\bigr)
+\end{equation}
+
+Recommended: $A_0 = 0.02$~m, $k_A = 0.004$~m/N.
+
+\subsection{Phase Offset Mapping}
+
+\begin{equation}\label{eq:phase_map}
+  \phi_n(t) = \phi_0 + k_\phi\,\kappa(t)\,d_n
+\end{equation}
+
+Curvature $\kappa$ → differential phase → turning motion.
+
+\subsection{Propagation Velocity (Saturating)}
+
+\begin{equation}\label{eq:vp_map}
+  v_{p,n}(t)
+  = \operatorname{smooth}\!\left(v_p^{\rm prev},\;
+    k_v\,\frac{\|\mathbf{v}_{\rm ref}(t)\|}{\alpha + \|\mathbf{v}_{\rm ref}(t)\|}
+    \right)
+\end{equation}
+
+Recommended: $k_v = 1.2$~m/s, $\alpha = 0.5$~m/s. Smooth = first-order filter, $\tau = 0.1$~s.
+
+%% ============================================================
+\section{Moiré Synapse — Quantum Conductance}
+%% ============================================================
+
+\subsection{Moiré Potential}
+
+3-fold symmetric scalar potential:
+\begin{equation}\label{eq:moire_pot}
+  V(\mathbf{r}) = V_0 \sum_{j=1}^{3} \cos(\mathbf{G}_j \cdot \mathbf{r}),
+  \quad
+  \mathbf{G}_j = G\bigl(\cos\alpha_j,\,\sin\alpha_j\bigr),
+  \quad \alpha_j = \tfrac{2\pi}{3}(j-1)
+\end{equation}
+
+Moiré reciprocal lattice vector magnitude:
+\begin{equation}\label{eq:moire_G}
+  G \approx \frac{4\pi}{3a}\,\theta
+  \quad \Rightarrow \quad
+  L_m \approx \frac{a}{\sqrt{\theta^2 + \delta^2}}
+\end{equation}
+
+At 23.5°: $L_m \approx 0.6$~nm; shorter period → wider bandwidth, higher Fermi velocity.
+
+\subsection{Plane-Wave Hamiltonian}
+
+\begin{equation}\label{eq:pw_hamiltonian}
+  H_{G,G'}(k) = \frac{\hbar^2}{2m^*}(k+G)^2\,\delta_{G,G'} + V_{G-G'}
+\end{equation}
+
+Bloch eigenvalues $E_n(k)$ obtained by diagonalisation over plane-wave basis.
+
+\subsection{Density of States (Lorentzian broadening)}
+
+\begin{equation}\label{eq:dos}
+  \DOS(E) = \frac{1}{N_k}\sum_{n,k}
+  \frac{\Gamma/\pi}{(E - E_n(k))^2 + \Gamma^2}
+\end{equation}
+
+\subsection{Landauer–Büttiker Conductance}
+
+\begin{equation}\label{eq:landauer}
+  G(E_F) = G_0\,T(E_F), \qquad G_0 = \frac{2e^2}{h}
+\end{equation}
+
+Thermal broadening:
+\begin{equation}\label{eq:thermal_G}
+  G(V_g) = \int_{-\infty}^{+\infty}
+  G(E)\left(-\frac{\partial f(E;\,E_F,T)}{\partial E}\right) dE,
+  \quad
+  -\frac{\partial f}{\partial E}
+  = \frac{1}{4k_BT}\operatorname{sech}^2\!\left(\frac{E-E_F}{2k_BT}\right)
+\end{equation}
+
+\subsection{Gate-Voltage → Fermi Energy}
+
+\begin{equation}\label{eq:gate_ef}
+  n(V_g) = \frac{C_g(V_g - V_0)}{e},
+  \qquad
+  E_F(V_g) = \operatorname{sgn}(n)\,\hf\sqrt{\pi|n|}
+\end{equation}
+
+\subsection{Synaptic Weight Normalisation}
+
+\begin{equation}\label{eq:weight}
+  w(V_g) = \frac{G(V_g) - G_{\min}}{G_{\max} - G_{\min}} \in [0,1]
+\end{equation}
+
+\subsection{Update Energy (Ideal Gate)}
+
+\begin{equation}\label{eq:update_energy}
+  E_{\rm update} \approx \tfrac{1}{2}\,C_g\,\Delta V_g^2
+\end{equation}
+
+Example: $C_g = 10$~aF, $\Delta V_g = 0.1$~V $\Rightarrow$ $E_{\rm update} \approx 5\times10^{-20}$~J $\approx 50$~zepto-joules.
+
+\subsection{STDP Plasticity Rule}
+
+\begin{equation}\label{eq:stdp}
+  \Delta w =
+  \begin{cases}
+    A_+\,e^{-|\Delta t|/\tau_+} & \text{if } \Delta t > 0 \quad (\text{LTP})\\
+    -A_-\,e^{-|\Delta t|/\tau_-} & \text{if } \Delta t < 0 \quad (\text{LTD})
+  \end{cases}
+\end{equation}
+
+%% ============================================================
+\section{Phase Tracking (Wave Drift Compensation)}
+%% ============================================================
+
+\subsection{Signal Model}
+
+\begin{equation}\label{eq:signal_model}
+  y_k = A\,e^{i\theta} + n_k, \quad n_k \sim \mathcal{CN}(0,\sigma_r^2)
+\end{equation}
+
+Pilot summary statistic (matched filter):
+\begin{equation}\label{eq:pilot_stat}
+  z = \sum_{k=1}^{K} y_k\,\bar{s}_k
+\end{equation}
+
+\subsection{ML Phase Estimate}
+
+\begin{equation}\label{eq:ml_phase}
+  \hat{\theta}_{\rm ML} = \angle\, z
+\end{equation}
+
+\subsection{Cramér–Rao Lower Bound}
+
+\begin{equation}\label{eq:crlb}
+  \operatorname{Var}(\hat{\theta}) \geq \frac{1}{2 \cdot \SNR \cdot K},
+  \quad \SNR = \frac{A^2}{\sigma_r^2}
+\end{equation}
+
+\subsection{Von Mises Recursive Filter}
+
+Update step:
+\begin{equation}\label{eq:vm_update}
+  V_t = \kappa_{t|t-1}\,e^{i\mu_{t|t-1}}
+        + \frac{2}{\sigma_r^2}\,z_t,
+  \qquad
+  \mu_t = \angle V_t, \quad \kappa_t = |V_t|
+\end{equation}
+
+Prediction step (moment-matching):
+\begin{equation}\label{eq:vm_predict}
+  \kappa_{t|t-1} = A_1^{-1}\!\bigl(A_1(\kappa_{t-1})\,e^{-\sigma_w^2/2}\bigr),
+  \qquad A_1(\kappa) = \frac{I_1(\kappa)}{I_0(\kappa)}
+\end{equation}
+
+\subsection{Particle Filter Weight}
+
+\begin{equation}\label{eq:pf_weight}
+  w^{(i)} \propto
+  \exp\!\left(\frac{2}{\sigma_r^2}\,\Re\!\left\{e^{-i\theta^{(i)}}\,z_t\right\}\right)
+\end{equation}
+
+\subsection{Antiphase Pre-Emphasis}
+
+\begin{equation}\label{eq:preemphasis}
+  \psi_{\rm pre} = \psi \cdot e^{-i\hat{\eta}},
+  \quad
+  \psi_{\rm out} = \psi_{\rm pre} \cdot e^{i\eta}
+  \approx \psi \cdot e^{i(\eta - \hat{\eta})} \approx \psi
+\end{equation}
+
+%% ============================================================
+\section{System Performance Summary}
+%% ============================================================
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Metric} & \textbf{WavePhysAI} & \textbf{Digital NPU} \\
+\midrule
+Inference complexity  & $O(1)$              & $O(N^2)$ \\
+Reflex latency        & $< 5$~ms            & $> 50$~ms \\
+Synaptic energy       & $\sim$attojoule     & fJ--pJ \\
+Power (full body)     & $< 1/100\times$     & baseline \\
+Fabrication           & strain self-assembly & photolithography \\
+Scalability           & add cavity modules  & chip redesign \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip
+
+\textbf{Central result (Eq.~\ref{eq:joint_angle} + \ref{eq:interference}):}
+\begin{equation}\label{eq:central}
+  \boxed{
+    \theta_i(t) = k \int_0^t
+    \left|\sum_j A_j\,e^{i\phi_j(\tau)}\right|^2 \bigg|_{x=x_i}
+    \,d\tau
+  }
+\end{equation}
+
+\emph{Wave interference naturally performs analog vector summation,
+enabling direct mapping from physical wave energy distributions to
+multi-degree-of-freedom motor control without digital computation.}
+
+\end{document}
