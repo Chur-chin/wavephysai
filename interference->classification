@@ -1,0 +1,78 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# -------------------------
+# 1. 데이터 생성 (2-class)
+# -------------------------
+np.random.seed(42)
+
+N = 200
+x_class0 = np.random.normal(loc=-1.0, scale=0.5, size=N)
+x_class1 = np.random.normal(loc=1.0, scale=0.5, size=N)
+
+X = np.concatenate([x_class0, x_class1])
+y = np.array([0]*N + [1]*N)
+
+# -------------------------
+# 2. Wave encoding
+# -------------------------
+def encode_phase(x):
+    return np.pi * x  # 입력 → 위상
+
+def wave_function(phase):
+    return np.exp(1j * phase)
+
+# -------------------------
+# 3. Interference computation
+# -------------------------
+def compute_intensity(x):
+    phase = encode_phase(x)
+    
+    # 두 reference wave (class detector 역할)
+    ref0 = np.exp(1j * 0)        # class 0 기준
+    ref1 = np.exp(1j * np.pi/2)  # class 1 기준
+    
+    wave = wave_function(phase)
+    
+    # interference
+    I0 = np.abs(wave + ref0)**2
+    I1 = np.abs(wave + ref1)**2
+    
+    return I0, I1
+
+# -------------------------
+# 4. Classification
+# -------------------------
+pred = []
+I0_list = []
+I1_list = []
+
+for x in X:
+    I0, I1 = compute_intensity(x)
+    I0_list.append(I0)
+    I1_list.append(I1)
+    
+    pred.append(0 if I0 > I1 else 1)
+
+pred = np.array(pred)
+
+# -------------------------
+# 5. Accuracy
+# -------------------------
+accuracy = np.mean(pred == y)
+print("Accuracy:", accuracy)
+
+# -------------------------
+# 6. Visualization
+# -------------------------
+plt.figure()
+plt.scatter(X, I0_list, label="Class 0 intensity", alpha=0.6)
+plt.scatter(X, I1_list, label="Class 1 intensity", alpha=0.6)
+
+plt.xlabel("Input x")
+plt.ylabel("Interference Intensity")
+plt.title(f"Wave Interference Classification (Acc={accuracy:.2f})")
+plt.legend()
+plt.grid()
+
+plt.show()
