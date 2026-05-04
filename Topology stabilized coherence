@@ -1,0 +1,109 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ============================================
+# GRID
+# ============================================
+
+N = 300
+L = 15
+
+x = np.linspace(-L, L, N)
+y = np.linspace(-L, L, N)
+
+X, Y = np.meshgrid(x, y)
+
+R = np.sqrt(X**2 + Y**2)
+TH = np.arctan2(Y, X)
+
+# ============================================
+# PARAMETERS
+# ============================================
+
+k = 2.0
+omega = 1.0
+
+alpha = 2.5
+beta = 0.7
+
+timesteps = 120
+
+# ============================================
+# NORMAL WAVE
+# ============================================
+
+def normal_wave(t):
+
+    phi = k*R - omega*t
+
+    psi = np.exp(1j*phi)
+
+    return psi
+
+# ============================================
+# SERPENTINE TOPOLOGY WAVE
+# ============================================
+
+def serp_wave(t):
+
+    phi = (
+        k*R
+        - omega*t
+        + alpha*np.sin(beta*R + 2*TH)
+    )
+
+    # recursive reflection
+    phi += 0.6*np.sin(0.3*t - R)
+
+    # berry-like winding
+    phi += 2*TH
+
+    psi = np.exp(1j*phi)
+
+    return psi
+
+# ============================================
+# COHERENCE FUNCTION
+# ============================================
+
+psi0_normal = normal_wave(0)
+psi0_serp = serp_wave(0)
+
+C_normal = []
+C_serp = []
+
+for t in range(timesteps):
+
+    psi_n = normal_wave(t)
+    psi_s = serp_wave(t)
+
+    c1 = np.abs(np.sum(np.conj(psi0_normal)*psi_n))
+    c2 = np.abs(np.sum(np.conj(psi0_serp)*psi_s))
+
+    C_normal.append(c1)
+    C_serp.append(c2)
+
+# normalize
+C_normal = np.array(C_normal)
+C_serp = np.array(C_serp)
+
+C_normal /= np.max(C_normal)
+C_serp /= np.max(C_serp)
+
+# ============================================
+# PLOT
+# ============================================
+
+plt.figure(figsize=(8,5))
+
+plt.plot(C_normal, label='Normal Wave')
+plt.plot(C_serp, label='Serpentine Recursive Wave')
+
+plt.xlabel('time')
+plt.ylabel('coherence overlap')
+
+plt.title('Topology Stabilized Coherence')
+
+plt.legend()
+
+plt.show()
