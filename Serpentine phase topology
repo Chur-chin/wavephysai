@@ -1,0 +1,78 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+
+# =========================================
+# Grid
+# =========================================
+N = 300
+L = 20
+
+x = np.linspace(-L, L, N)
+y = np.linspace(-L, L, N)
+
+X, Y = np.meshgrid(x, y)
+
+R = np.sqrt(X**2 + Y**2)
+TH = np.arctan2(Y, X)
+
+# =========================================
+# Parameters
+# =========================================
+A1 = 1.0
+A2 = 0.8
+
+k1 = 1.2
+k2 = 1.25
+
+w1 = 0.8
+w2 = 0.82
+
+alpha = 1.8
+beta = 0.6
+
+# =========================================
+# Serpentine Phase
+# =========================================
+def serp_phase(R, TH, t, k, w, twist):
+
+    return (
+        k * R
+        - w * t
+        + alpha * np.sin(beta * R + twist * TH)
+    )
+
+# =========================================
+# Total Field
+# =========================================
+def total_field(t):
+
+    phi1 = serp_phase(R, TH, t, k1, w1, 1.0)
+    phi2 = serp_phase(R, TH, t, k2, w2, -1.2)
+
+    psi1 = A1 * np.exp(1j * phi1)
+    psi2 = A2 * np.exp(1j * phi2)
+
+    psi = psi1 + psi2
+
+    return np.abs(psi)**2
+
+# =========================================
+# Plot
+# =========================================
+fig, ax = plt.subplots(figsize=(8,8))
+
+field = total_field(0)
+
+im = ax.imshow(
+    field,
+    extent=[-L, L, -L, L],
+    origin='lower',
+    cmap='inferno'
+)
+
+plt.colorbar(im)
+
+ax.set_title("Serpentine Phase Topology")
+
+plt.show()
