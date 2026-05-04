@@ -1,0 +1,154 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ============================================================
+# GRID
+# ============================================================
+
+N = 250
+L = 15
+
+x = np.linspace(-L, L, N)
+y = np.linspace(-L, L, N)
+
+X, Y = np.meshgrid(x, y)
+
+R = np.sqrt(X**2 + Y**2)
+TH = np.arctan2(Y, X)
+
+# ============================================================
+# PARAMETERS
+# ============================================================
+
+k = 2.0
+omega = 1.0
+
+alpha = 2.5
+beta = 0.7
+
+timesteps = 120
+
+# ============================================================
+# NOISE PARAMETERS
+# ============================================================
+
+noise_amp = 0.8
+
+# ============================================================
+# NORMAL WAVE
+# ============================================================
+
+def normal_wave(t):
+
+    # random phase noise
+    noise = noise_amp * np.random.randn(N, N)
+
+    phi = (
+        k * R
+        - omega * t
+        + noise
+    )
+
+    psi = np.exp(1j * phi)
+
+    return psi
+
+# ============================================================
+# SERPENTINE RECURSIVE TOPOLOGY WAVE
+# ============================================================
+
+def serp_wave(t):
+
+    # random phase noise
+    noise = noise_amp * np.random.randn(N, N)
+
+    phi = (
+        k * R
+        - omega * t
+        + alpha * np.sin(beta * R + 2 * TH)
+    )
+
+    # recursive echo term
+    phi += 0.6 * np.sin(0.3 * t - R)
+
+    # berry-like winding
+    phi += 2 * TH
+
+    # add noise
+    phi += noise
+
+    psi = np.exp(1j * phi)
+
+    return psi
+
+# ============================================================
+# INITIAL STATES
+# ============================================================
+
+psi0_normal = normal_wave(0)
+psi0_serp = serp_wave(0)
+
+# ============================================================
+# COHERENCE STORAGE
+# ============================================================
+
+C_normal = []
+C_serp = []
+
+# ============================================================
+# TIME EVOLUTION
+# ============================================================
+
+for t in range(timesteps):
+
+    psi_n = normal_wave(t)
+    psi_s = serp_wave(t)
+
+    # overlap with initial state
+    c1 = np.abs(np.sum(np.conj(psi0_normal) * psi_n))
+    c2 = np.abs(np.sum(np.conj(psi0_serp) * psi_s))
+
+    C_normal.append(c1)
+    C_serp.append(c2)
+
+# ============================================================
+# NORMALIZATION
+# ============================================================
+
+C_normal = np.array(C_normal)
+C_serp = np.array(C_serp)
+
+C_normal /= np.max(C_normal)
+C_serp /= np.max(C_serp)
+
+# ============================================================
+# PLOT
+# ============================================================
+
+plt.figure(figsize=(10,6))
+
+plt.plot(
+    C_normal,
+    linewidth=2,
+    label='Normal Wave + Noise'
+)
+
+plt.plot(
+    C_serp,
+    linewidth=2,
+    label='Serpentine Recursive Wave + Noise'
+)
+
+plt.xlabel('time', fontsize=12)
+plt.ylabel('coherence overlap', fontsize=12)
+
+plt.title(
+    'Noise Robustness of Recursive Topology',
+    fontsize=14
+)
+
+plt.legend()
+
+plt.grid(alpha=0.3)
+
+plt.show()
