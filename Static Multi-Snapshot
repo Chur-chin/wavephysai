@@ -1,0 +1,56 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+N = 256
+L = 24.0
+x = np.linspace(-L/2, L/2, N)
+X, Y = np.meshgrid(x, x)
+R = np.sqrt(X**2 + Y**2)
+Theta = np.arctan2(Y, X)
+
+times = [0, 8, 16, 25, 35, 50]   # 여러 시간대
+
+fig = plt.figure(figsize=(20, 14))
+fig.suptitle('Serpentine Wave Topology — Static Snapshots v8.0', fontsize=18)
+
+for i, t in enumerate(times):
+    winding = 1.0 + 1.8 * (t / 40)
+    
+    # Strong serpentine phase
+    phase = 5.2 * X - 1.85 * t + \
+            3.8 * np.sin(1.55 * R + 0.92 * t) + \
+            winding * Theta * 1.1 + \
+            2.1 * np.sin(3.8 * Theta) * np.exp(-R/5.2)
+    
+    # Strong amplitude
+    A = 3.2 * np.exp(-0.012 * R**1.6) + 2.1 * np.exp(-((R-4.8)**2)/7)
+    
+    psi = A * np.exp(1j * phase)
+    psi *= np.exp(1j * 0.45 * np.abs(psi)**2)
+    
+    # Plot
+    plt.subplot(3, 4, i*2 + 1)
+    plt.imshow(np.real(psi), cmap='RdBu_r', vmin=-3.5, vmax=3.5)
+    plt.title(f't={t} | Re(Ψ)')
+    plt.colorbar()
+    
+    plt.subplot(3, 4, i*2 + 2)
+    plt.imshow(np.abs(psi)**2, cmap='magma')
+    plt.title(f't={t} | |Ψ|²')
+    plt.colorbar()
+    
+    # Phase in last row
+    if i == len(times)-1:
+        plt.subplot(3, 4, 9)
+        plt.imshow(np.angle(psi), cmap='twilight_shifted')
+        plt.title('Phase (final)')
+        plt.colorbar()
+        
+        plt.subplot(3, 4, 10)
+        dy, dx = np.gradient(np.angle(psi))
+        plt.imshow((dx - dy) % (2*np.pi), cmap='hsv')
+        plt.title('Vortex / Winding')
+        plt.colorbar()
+
+plt.tight_layout()
+plt.show()
