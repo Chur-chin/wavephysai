@@ -1,0 +1,139 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ============================================
+# GRID
+# ============================================
+
+N = 500
+L = 20
+
+x = np.linspace(-L, L, N)
+y = np.linspace(-L, L, N)
+
+X, Y = np.meshgrid(x, y)
+
+R = np.sqrt(X**2 + Y**2)
+TH = np.arctan2(Y, X)
+
+# ============================================
+# ANISOTROPIC DIELECTRIC
+# ============================================
+
+eps_x = 1.0
+eps_y = 3.0
+
+# ============================================
+# POLARITON DISPERSION
+# ============================================
+
+kx = X / (R + 1e-6)
+ky = Y / (R + 1e-6)
+
+k_eff = np.sqrt(
+    (kx**2)/eps_x +
+    (ky**2)/eps_y
+)
+
+# ============================================
+# PARAMETERS
+# ============================================
+
+omega = 4.0
+
+alpha = 2.0      # serpentine modulation
+beta = 0.7
+
+berry_strength = 3.0
+winding = 2
+
+nonlocal_strength = 0.25
+xi = 4.0
+
+# ============================================
+# SERPENTINE PHASE
+# ============================================
+
+phase = (
+    k_eff * R
+    - omega
+    + alpha * np.sin(beta * R + 2*TH)
+)
+
+# ============================================
+# BERRY PHASE
+# ============================================
+
+berry_phase = berry_strength * winding * TH
+
+# ============================================
+# TOTAL PHASE
+# ============================================
+
+phi = phase + berry_phase
+
+# ============================================
+# MAIN FIELD
+# ============================================
+
+psi = np.exp(1j * phi)
+
+# ============================================
+# NONLOCAL COUPLING
+# ============================================
+
+# simple shifted coupling
+
+psi_shift1 = np.roll(psi, 15, axis=0)
+psi_shift2 = np.roll(psi, -15, axis=1)
+
+kernel = np.exp(-R / xi)
+
+psi_nonlocal = (
+    psi
+    + nonlocal_strength * kernel * psi_shift1
+    + nonlocal_strength * kernel * psi_shift2
+)
+
+# ============================================
+# CAVITY BOUNDARY REFLECTION
+# ============================================
+
+boundary = np.exp(-((R - 15)**2)/0.5)
+
+reflection_phase = np.pi / 2
+
+psi_reflect = (
+    psi_nonlocal
+    + 0.6 * boundary * np.exp(1j*reflection_phase)
+)
+
+# ============================================
+# INTENSITY
+# ============================================
+
+I = np.abs(psi_reflect)**2
+
+# ============================================
+# PLOT
+# ============================================
+
+plt.figure(figsize=(10,10))
+
+plt.imshow(
+    I,
+    extent=[-L,L,-L,L],
+    origin='lower',
+    cmap='inferno'
+)
+
+plt.colorbar(label='Intensity')
+
+plt.title(
+    'Graphene-hBN Serpentine Polariton Topology'
+)
+
+plt.xlabel('x')
+plt.ylabel('y')
+
+plt.show()
